@@ -47,6 +47,9 @@ class Gist:
 
 		return r
 
+	def edit(self, *args, **kwargs):
+		return self.update(*args, **kwargs)
+
 	def delete(self, gist_id: str):
 		_ = self.get(gist_id)
 
@@ -69,6 +72,9 @@ class Gist:
 
 		return self.update_file(gist_id=gist_id, filename=filename, new_content=content)
 	
+	def edit_file(self, *args, **kwargs):
+		return self.update_file(*args, **kwargs)
+
 	def update_file(self, gist_id: str, filename: str, new_name: str=None, new_content: str=None):
 		_ = self.get(gist_id)
 
@@ -94,7 +100,7 @@ class Gist:
 		raise FileDoNotExists(f'No file named "{filename}" found in gist {gist_id}')
 
 	
-	def get_many(self, select: str="user", since=: str=None, per_page: int=50, page=1):
+	def get_many(self, select: str="user", since: str=None, per_page: int=50, page: int=1):
 		if select == "user":
 			path = "gists"
 		elif select == "public":
@@ -120,13 +126,13 @@ class Gist:
 		elif r.status_code == 403:
 			raise InvalidGistId(f'Access to gist "{gist_id}" is forbidden.')
 
-	def get_commits(self, gist_id: str, per_page: int=50, page=1):
+	def get_commits(self, gist_id: str, per_page: int=50, page: int=1):
 		gist = self.get(gist_id=gist_id)
 
 		r = self.doApiRequest(url=gist['commits_url'])
 		return r
 
-	def get_forks(self, gist_id: str, per_page: int=50, page=1):
+	def get_forks(self, gist_id: str, per_page: int=50, page: int=1):
 		gist = self.get(gist_id=gist_id)
 
 		r = self.doApiRequest(url=gist['forks_url'])
@@ -160,6 +166,55 @@ class Gist:
 			raise InvalidGistId(f'Access to gist "{gist_id}" is forbidden.')
 		
 		return r
+
+
+
+	def comment(self, *args, **kwargs):
+		return self.add_comment(*args, **kwargs)
+
+	def add_comment(self, gist_id: str, content: str):
+		_ = self.get(gist_id)
+
+		path = f"gists/{gist_id}/comments"
+
+		r = self.doApiRequest(path, data={"body": content}, method="POST")
+		return r
+	
+	def edit_comment(self, *args, **kwargs):
+		return self.update_comment(*args, **kwargs)
+
+	def update_comment(self, gist_id: str, comment_id: int, new_content: str):
+		_ = self.get(gist_id)
+
+		path = f"gists/{gist_id}/comments/{comment_id}"
+
+		r = self.doApiRequest(path, data={"body": new_content}, method="PATCH")
+		return r
+
+	def delete_comment(self, gist_id: str, comment_id: int):
+		_ = self.get(gist_id)
+
+		path = f"gists/{gist_id}/comments/{comment_id}"
+
+		r = self.doApiRequest(path, method="DELETE")
+		return r		
+
+
+	def get_comments(self, gist_id: str, per_page: int=50, page: int=1):
+		_ = self.get(gist_id)
+
+		path = f"gists/{gist_id}/comments"
+
+		r = self.doApiRequest(path, method="GET")
+		return r		
+
+	def get_comment(self, gist_id: str, comment_id: int):
+		_ = self.get(gist_id)
+
+		path = f"gists/{gist_id}/comments/{comment_id}"
+
+		r = self.doApiRequest(path, method="GET")
+		return r		
 
 
 
