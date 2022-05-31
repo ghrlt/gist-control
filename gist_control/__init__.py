@@ -29,7 +29,7 @@ class Gist:
 	def update(self, gist_id: str, description: str=None, files: list=None):
 		# files = [{"name": "a", "content": "aa"}, {"name": "b", "filename"="c", "content": "cc"}]
 
-		_ = self.get_gist(gist_id)
+		_ = self.get(gist_id)
 
 		json = {}
 		if description:
@@ -47,9 +47,30 @@ class Gist:
 
 		return r
 
+	def delete(self, gist_id: str):
+		_ = self.get(gist_id)
+
+		path = f"gists/{gist_id}"
+
+		r = self.doApiRequest(
+			path,
+			headers={"accept": "application/vnd.github.v3+json"},
+			method="DELETE",
+			res_as_json=False
+		)
+		return r
+
+
+	def add_file(self, gist_id: str, filename: str, content: str):
+		gist = self.get(gist_id)
+
+		if gist['files'].get(filename):
+			raise FileAlreadyExists(f'A file with this name "{filename}" already exists in gist {gist_id}')
+
+		return self.update_file(gist_id=gist_id, filename=filename, new_content=content)
 	
 	def update_file(self, gist_id: str, filename: str, new_name: str=None, new_content: str=None):
-		_ = self.get_gist(gist_id)
+		_ = self.get(gist_id)
 
 		file = {"name": filename}
 		if new_name:
@@ -64,42 +85,30 @@ class Gist:
 
 		return r
 
-	def add_file(self, gist_id: str, filename: str, content: str):
-		gist = self.get_gist(gist_id)
-
-		if gist['files'].get(filename):
-			raise FileAlreadyExists(f'A file with this name "{filename}" already exists in gist {gist_id}')
-
-		return self.update_file(gist_id=gist_id, filename=filename, new_content=content)
-
 	def delete_file(self, gist_id: str, filename: str):
-		gist = self.get_gist(gist_id)
+		gist = self.get(gist_id)
 
 		if gist['files'].get(filename):
 			return self.update(gist_id=gist_id, files=[{"name": filename}])
 
 		raise FileDoNotExists(f'No file named "{filename}" found in gist {gist_id}')
 
+	
+	def get_many(self, select: str="user", since=: str=None, per_page: int=50, page=1):
+		if select == "user":
+			path = "gists"
+		elif select == "public":
+			path = "gists/public"
+		elif select == "starred":
+			path = "gists/starred"
 
-	def delete(self, gist_id: str):
-		_ = self.get_gist(gist_id)
+		path += f"?since={since}&per_page={per_page}&page={page}"
 
-		path = f"gists/{gist_id}"
-
-		r = self.doApiRequest(
-			path,
-			headers={"accept": "application/vnd.github.v3+json"},
-			method="DELETE",
-			res_as_json=False
-		)
-		return r
-
-	def list(self):
-		r = self.doApiRequest("gists", headers={"accept": "application/vnd.github.v3+json"})
+		r = self.doApiRequest(path, headers={"accept": "application/vnd.github.v3+json"})
 
 		return r
 
-	def get_gist(self, gist_id: str):
+	def get(self, gist_id: str):
 		r = self.doApiRequest(f"gists/{gist_id}", res_as_json=False)
 
 		if r.status_code == 200 or r.status_code == 304: # Why 304? :shrug: but response code is shown in doc
@@ -110,6 +119,47 @@ class Gist:
 
 		elif r.status_code == 403:
 			raise InvalidGistId(f'Access to gist "{gist_id}" is forbidden.')
+
+	def get_commits(self, gist_id: str, per_page: int=50, page=1):
+		gist = self.get(gist_id=gist_id)
+
+		r = self.doApiRequest(url=gist['commits_url'])
+		return r
+
+	def get_forks(self, gist_id: str, per_page: int=50, page=1):
+		gist = self.get(gist_id=gist_id)
+
+		r = self.doApiRequest(url=gist['forks_url'])
+		return r
+
+
+	def star(self, gist_id: str):
+		path = f"gists/{gist_id}/star"
+		
+		r = self.doApiRequest(path, method="PUT", res_as_json=False)
+		
+		# Silently ignore 304 status code?
+		if r.status_code == 404:
+			raise InvalidGistId(f'Gist "{gist_id}" was not found.')
+
+		elif r.status_code == 403:
+			raise InvalidGistId(f'Access to gist "{gist_id}" is forbidden.')
+		
+		return r
+
+	def unstar(self, gist_id: str):
+		path = f"gists/{gist_id}/star"
+
+		r = self.doApiRequest(path, method="DELETE", res_as_json=False)
+		
+		# Silently ignore 304 status code?
+		if r.status_code == 404:
+			raise InvalidGistId(f'Gist "{gist_id}" was not found.')
+
+		elif r.status_code == 403:
+			raise InvalidGistId(f'Access to gist "{gist_id}" is forbidden.')
+		
+		return r
 
 
 
