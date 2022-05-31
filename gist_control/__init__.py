@@ -23,7 +23,7 @@ class Gist:
 			post={
 				"description": description,
 				"files": {
-					f"{name}": {
+					name: {
 						"content": content
 					}
 				},
@@ -86,4 +86,3 @@ class Gist:
 			return r.json()
 
 		return r
-
