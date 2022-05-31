@@ -13,6 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/ghrlt/gist-control",
     project_urls={
+    	"Developer website": "https://ghr.lt?f=gist-control",
         "Bug Tracker": "https://github.com/ghrlt/gist-control/issues",
     },
     classifiers=[
