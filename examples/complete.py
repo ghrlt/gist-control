@@ -1,12 +1,19 @@
 from gist_control import Gist
 
 
-gctrl = Gist( "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")#input("Oauth Token? ") )
+gctrl = Gist( input("Oauth Token? ") )
+
 
 
 # Get a gist
 g = gctrl.get_gist(input("Gist ID? "))
 
+# Star a gist
+
+
+
+
+#		 ~ YOUR GISTS ~ 		#
 
 # Create a gist
 g = gctrl.create(
