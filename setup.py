@@ -3,12 +3,13 @@ import setuptools
 with open("README.md", "r", encoding="utf-8") as f:
     long_description = f.read()
 
+
 setuptools.setup(
     name="gist_control",
-    version="0.3",
+    version="1.0.1",
     author="Gaëtan Hrlt",
     author_email="gaetan.hrlt+dev@gmail.com",
-    description="Control your Github Gists!",
+    description="Interact with Github Gists!",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/ghrlt/gist-control",
