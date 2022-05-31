@@ -16,17 +16,17 @@ class Gist:
 			raise InvalidOAuthToken("The token you passed is invalid (Might be expired).")
 
 
-	def create(self, description: str, name: str, content: str, public: bool=True):
+	def create(self, description: str, files: list, public: bool=True):
+		# files = [{"name": "a", "content": "aa"}, {"name": "b", "content": "bb"}]
+
+		print({"files": {f['name']:{"content":f['content']} for f in files}})
+
 		r = self.doApiRequest(
 			"gists",
 			headers={"accept": "application/vnd.github.v3+json"},
 			post={
 				"description": description,
-				"files": {
-					name: {
-						"content": content
-					}
-				},
+				"files": {f['name']:{"content":f['content']} for f in files},
 				"public": public 
 			}
 		)
@@ -82,7 +82,7 @@ class Gist:
 			r = requests.get(url, headers=headers)
 
 
-		if r.status_code == 200:
+		if r.status_code == 200 or r.status_code == 201:
 			return r.json()
 
 		return r
