@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setuptools.setup(
     name="gist_control",
-    version="1.0.1",
+    version="1.1",
     author="Gaëtan Hrlt",
     author_email="gaetan.hrlt+dev@gmail.com",
     description="Interact with Github Gists!",
