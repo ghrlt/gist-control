@@ -6,10 +6,32 @@ gctrl = Gist( input("Oauth Token? ") )
 
 
 # Get a gist
-g = gctrl.get_gist(input("Gist ID? "))
+g = gctrl.get(gist_id=input("Gist ID? "))
 
 # Star a gist
+gctrl.star(gist_id=g['id'])
 
+# Unstar a gist
+gctrl.unstar(gist_id=g['id'])
+
+
+
+#		 ~ GISTS COMMENTS ~ 		#
+
+# Get gist comments
+comments = gctrl.get_comments(gist_id=g['id'])
+
+# Add a comment to gist
+c = gctrl.comment(gist_id=g['id'], content="Waouh! That is awsome.")
+
+# Get gist comment
+c = gctrl.get_comment(gist_id=g['id'], comment_id=c['id'])
+
+# Edit a gist comment you made
+c = gctrl.edit_comment(gist_id=g['id'], comment_id=c['id'], new_content="Waouh! That's awesome!")
+
+# Delete a gist comment
+gctrl.delete_comment(gist_id=g['id'], comment_id=c['id'])
 
 
 
